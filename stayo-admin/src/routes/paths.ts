@@ -1,0 +1,21 @@
+export const PATHS = {
+  login: "/login",
+  dashboard: "/",
+  properties: "/properties",
+  users: "/users",
+  roles: "/roles",
+  devices: "/devices",
+  plans: "/plans",
+  reports: "/reports",
+  invoices: "/invoices",
+  audit: "/audit",
+  integrations: "/integrations",
+  settings: "/settings",
+  paymentSettings: "/settings/payment",
+  notifications: "/settings/notifications",
+  // Operations
+  checkIn: "/operations/check-in",
+  activeStays: "/operations/active-stays",
+  checkOut: "/operations/check-out",
+  roomStatus: "/operations/rooms",
+} as const;
