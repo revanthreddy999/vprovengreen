@@ -25,7 +25,7 @@ import RoomStatus from "./pages/operations/RoomStatus";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/stayo-admin">
       <ToastProvider>
         <Routes>
           <Route path={PATHS.login} element={<Login />} />
