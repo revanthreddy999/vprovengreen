@@ -1,9 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/stayo-admin/:path*",
-      "destination": "https://vprovengreen-stayo-admin.vercel.app/stayo-admin/:path*"
-    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
