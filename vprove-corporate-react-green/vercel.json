@@ -1,11 +1,15 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite"
-    "rewrites": [
+  "framework": "vite",
+  "rewrites": [
     {
       "source": "/stayo-admin/:path*",
-      "destination": "https://stayo-admin.vercel.app/stayo-admin/:path*"
+      "destination": "https://vprovengreen-stayo-admin.vercel.app/stayo-admin/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
