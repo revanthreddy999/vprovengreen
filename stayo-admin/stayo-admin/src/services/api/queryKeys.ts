@@ -1,0 +1,15 @@
+export const queryKeys = {
+  dashboard: ["dashboard"],
+  properties: ["properties"],
+  propertyById: (id: string) => ["properties", id],
+  users: ["users"],
+  userById: (id: string) => ["users", id],
+  roles: ["roles"],
+  devices: ["devices"],
+  plans: ["plans"],
+  reports: ["reports"],
+  invoices: ["invoices"],
+  audit: ["audit"],
+  integrations: ["integrations"],
+  settings: ["settings"],
+};
