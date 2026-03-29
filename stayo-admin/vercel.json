@@ -1,5 +1,12 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    {
+      "src": "^/stayo-admin/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "^/stayo-admin/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
