@@ -1,135 +1,100 @@
-import { useState } from "react";
 import MainLayout from "../../components/layout/MainLayout";
 import PageHeader from "../../components/ui/PageHeader";
 import StatCard from "../../components/ui/StatCard";
-import ConfirmModal from "../../components/ui/ConfirmModal";
 import { useToast } from "../../context/ToastContext";
-import { planMock } from "../../mock/plans";
-import { TrendingUp, CheckCircle } from "lucide-react";
+import { planMock, planTiers } from "../../mock/plans";
 import clsx from "clsx";
-
-const PLAN_OPTIONS = [
-  { name: "Starter", price: "₹4,999/mo", devices: 5, checkins: 500, features: ["1 Property", "Basic analytics", "Email support"] },
-  { name: "Plus",    price: "₹9,999/mo", devices: 15, checkins: 1500, features: ["5 Properties", "Advanced analytics", "Priority support"] },
-  { name: "Pro",     price: "₹19,999/mo", devices: 30, checkins: 5000, features: ["15 Properties", "Full analytics", "Dedicated support", "API access"] },
-  { name: "Enterprise", price: "Custom", devices: 9999, checkins: 9999, features: ["Unlimited properties", "Custom integrations", "SLA guarantee", "On-site training"] },
-];
 
 export default function Plans() {
   const toast = useToast();
-  const [upgradeTarget, setUpgradeTarget] = useState<string | null>(null);
-  const [currentPlan, setCurrentPlan] = useState(planMock.planName);
-
-  const usageColor = planMock.usagePercentage > 85 ? "bg-red-500" : planMock.usagePercentage > 70 ? "bg-amber-500" : "bg-emerald-500";
-
-  const handleUpgrade = () => {
-    if (!upgradeTarget) return;
-    setCurrentPlan(upgradeTarget);
-    setUpgradeTarget(null);
-    toast(`Upgraded to ${upgradeTarget} successfully`);
-  };
+  const usageColor = planMock.usagePercentage > 85 ? "bg-red-500" : planMock.usagePercentage > 70 ? "bg-yellow-500" : "bg-emerald-500";
 
   return (
     <MainLayout>
       <div className="space-y-6">
-        <PageHeader title="Plans & Usage" subtitle="Monitor subscription limits, device usage, and manage your billing plan." />
+        <PageHeader title="Plans & Usage" subtitle="Monitor subscription limits, device usage, and billing activity." />
 
-        {/* Current plan banner */}
-        <div className="rounded-3xl bg-gradient-to-r from-blue-900 to-slate-900 p-6 text-white shadow-lg">
+        {/* Current plan */}
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-blue-300">Current Plan</div>
-              <div className="mt-1 text-2xl font-bold">{currentPlan}</div>
-              <div className="mt-1 text-sm text-slate-300">Billing Cycle: {planMock.billingCycle}</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-white/10 px-4 py-3 text-center min-w-[100px]">
-                <div className="text-xl font-bold">{planMock.activeDevices}/{planMock.deviceLimit}</div>
-                <div className="text-xs text-blue-300">Devices</div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold text-slate-900">{planMock.planName}</h3>
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">Current</span>
               </div>
-              <div className="rounded-2xl bg-white/10 px-4 py-3 text-center min-w-[100px]">
-                <div className="text-xl font-bold">{planMock.monthlyCheckins.toLocaleString()}</div>
-                <div className="text-xs text-blue-300">Check-ins</div>
-              </div>
+              <p className="text-sm text-slate-500 mt-0.5">Billing Cycle: {planMock.billingCycle}</p>
             </div>
-          </div>
-          {/* Usage bar */}
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-slate-400 mb-1.5">
-              <span>Device usage</span>
-              <span>{planMock.usagePercentage}%</span>
-            </div>
-            <div className="h-2 w-full rounded-full bg-white/10">
-              <div className={clsx("h-2 rounded-full transition-all", usageColor)} style={{ width: `${planMock.usagePercentage}%` }} />
-            </div>
+            <button onClick={() => toast("Upgrade request sent to billing team", "info")}
+              className="rounded-2xl bg-blue-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 self-start lg:self-auto">
+              Upgrade Plan
+            </button>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          <StatCard title="Device Usage" value={`${planMock.activeDevices}/${planMock.deviceLimit}`} meta="Active vs Allowed" />
+        <div className="grid gap-4 grid-cols-2 xl:grid-cols-4">
+          <StatCard title="Device Usage" value={`${planMock.activeDevices} / ${planMock.deviceLimit}`} meta="Active vs allowed" />
           <StatCard title="Monthly Check-ins" value={String(planMock.monthlyCheckins)} meta="Billing driver" trend="up" />
-          <StatCard title="Usage" value={`${planMock.usagePercentage}%`} meta="Of plan limits" />
-          <StatCard title="Plan Health" value={planMock.usagePercentage > 85 ? "Critical" : planMock.usagePercentage > 70 ? "Warning" : "Healthy"}
-            meta="Based on current usage" trend={planMock.usagePercentage > 70 ? "down" : "up"} />
+          <StatCard title="Usage" value={`${planMock.usagePercentage}%`} meta="Across all limits" />
+          <StatCard title="Plan Health" value={planMock.usagePercentage > 85 ? "Critical" : planMock.usagePercentage > 70 ? "Warning" : "Healthy"} meta="Based on usage" trend={planMock.usagePercentage > 85 ? "down" : "up"} />
+        </div>
+
+        {/* Progress bar */}
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-semibold text-slate-700">Device Usage Progress</p>
+            <p className="text-sm font-medium text-slate-500">{planMock.activeDevices} of {planMock.deviceLimit} devices</p>
+          </div>
+          <div className="h-3 w-full rounded-full bg-slate-100">
+            <div className={clsx("h-3 rounded-full transition-all", usageColor)} style={{ width: `${planMock.usagePercentage}%` }} />
+          </div>
+          {planMock.usagePercentage > 80 && (
+            <p className="mt-2 text-xs text-amber-600 font-medium">⚠ Approaching limit — consider upgrading your plan</p>
+          )}
         </div>
 
         {/* Billing model */}
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2"><TrendingUp size={16} /> Billing Model</h3>
-          <div className="text-sm text-slate-600">
-            ₹9 per successful room check-in is applied to your monthly usage.
-            Total check-ins this cycle: <span className="font-semibold text-slate-900">{planMock.monthlyCheckins.toLocaleString()}</span>
-          </div>
-          <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm">
-            <div className="flex justify-between mb-2">
-              <span className="text-slate-500">Check-in charges</span>
-              <span className="font-medium">₹{(planMock.monthlyCheckins * 9).toLocaleString()}</span>
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">Billing Model</h3>
+          <div className="rounded-2xl bg-blue-50 border border-blue-100 p-4">
+            <p className="text-sm text-slate-700">₹9 per successful room check-in is applied to your monthly usage.</p>
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-sm text-slate-500">Total check-ins this cycle</span>
+              <span className="text-lg font-bold text-slate-900">{planMock.monthlyCheckins.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between mb-2">
-              <span className="text-slate-500">Platform fee</span>
-              <span className="font-medium">₹19,999</span>
+            <div className="mt-2 flex items-center justify-between">
+              <span className="text-sm text-slate-500">Estimated charge</span>
+              <span className="text-lg font-bold text-blue-900">₹{(planMock.monthlyCheckins * 9).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between border-t border-slate-200 pt-2 font-semibold">
-              <span>Estimated Total (+ GST)</span>
-              <span className="text-blue-900">₹{Math.round((planMock.monthlyCheckins * 9 + 19999) * 1.18).toLocaleString()}</span>
-            </div>
+            <p className="mt-2 text-xs text-slate-400">Final invoice will include GST and applicable taxes.</p>
           </div>
         </div>
 
-        {/* Plan options */}
+        {/* Plan tiers */}
         <div>
-          <h3 className="text-sm font-semibold text-slate-700 mb-4">Available Plans</h3>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {PLAN_OPTIONS.map((plan) => {
-              const isCurrent = plan.name === currentPlan;
-              return (
-                <div key={plan.name} className={clsx("rounded-3xl border p-5 transition", isCurrent ? "border-blue-300 bg-blue-50 shadow-md" : "border-slate-200 bg-white shadow-sm hover:shadow-md")}>
-                  {isCurrent && <div className="mb-3 inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">Current</div>}
-                  <div className="text-lg font-bold text-slate-900">{plan.name}</div>
-                  <div className="mt-1 text-xl font-semibold text-blue-700">{plan.price}</div>
-                  <div className="mt-3 text-xs text-slate-500 space-y-1.5">
-                    {plan.devices < 9999 && <div>Up to {plan.devices} devices</div>}
-                    {plan.checkins < 9999 && <div>{plan.checkins.toLocaleString()} check-ins/mo</div>}
-                    {plan.features.map((f) => (
-                      <div key={f} className="flex items-center gap-1.5"><CheckCircle size={11} className="text-emerald-500 shrink-0" />{f}</div>
-                    ))}
-                  </div>
-                  {!isCurrent && (
-                    <button onClick={() => setUpgradeTarget(plan.name)}
-                      className="mt-4 w-full rounded-2xl bg-blue-900 py-2 text-sm font-medium text-white hover:bg-blue-800 transition">
-                      Switch to {plan.name}
-                    </button>
-                  )}
+          <h3 className="text-base font-semibold text-slate-900 mb-4">Available Plans</h3>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {planTiers.map((tier, i) => (
+              <div key={tier.name} className={clsx("rounded-3xl border p-5 shadow-sm",
+                i === 2 ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-white")}>
+                {i === 2 && <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">Most Popular</span>}
+                <h4 className="text-lg font-bold text-slate-900 mt-1">{tier.name}</h4>
+                <p className="text-xl font-bold text-blue-900 mt-1">{tier.price}</p>
+                <div className="mt-4 space-y-2 text-sm text-slate-600">
+                  <p>📱 {tier.devices} devices</p>
+                  <p>🛎️ {tier.checkins} check-ins/mo</p>
+                  <p>🏨 {tier.properties} properties</p>
+                  <p>🎧 {tier.support} support</p>
                 </div>
-              );
-            })}
+                <button onClick={() => toast(`${tier.name} plan selected — contact billing`, "info")}
+                  className={clsx("mt-4 w-full rounded-2xl py-2 text-sm font-medium transition",
+                    i === 2 ? "bg-blue-900 text-white hover:bg-blue-800" : "border border-slate-200 text-slate-700 hover:bg-slate-50")}>
+                  Select {tier.name}
+                </button>
+              </div>
+            ))}
           </div>
         </div>
-
-        <ConfirmModal open={!!upgradeTarget} title={`Switch to ${upgradeTarget}?`} variant="primary"
-          message={`Your plan will be changed to ${upgradeTarget}. Billing will be adjusted in the next cycle.`}
-          confirmLabel="Confirm Switch" onConfirm={handleUpgrade} onCancel={() => setUpgradeTarget(null)} />
       </div>
     </MainLayout>
   );

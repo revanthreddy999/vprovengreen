@@ -4,163 +4,205 @@ import PageHeader from "../../components/ui/PageHeader";
 import FormModal from "../../components/ui/FormModal";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import ActionMenu from "../../components/ui/ActionMenu";
+import EmptyState from "../../components/ui/EmptyState";
 import { useToast } from "../../context/ToastContext";
 import { rolesMock } from "../../mock/roles";
 import type { RoleItem } from "../../types/role";
 import { Pencil, Trash2, Copy } from "lucide-react";
 import clsx from "clsx";
 
-const MODULES = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "properties", label: "Properties" },
-  { key: "users", label: "Users" },
-  { key: "devices", label: "Devices" },
-  { key: "billing", label: "Billing" },
-  { key: "audit", label: "Audit Logs" },
-  { key: "settings", label: "Settings" },
-  { key: "operations", label: "Operations" },
+const MODULE_GROUPS = [
+  { group: "Front Desk", mods: [{ key: "checkin", label: "Check-In" }, { key: "checkout", label: "Check-Out" }, { key: "operations", label: "Active Stays" }] },
+  { group: "Management", mods: [{ key: "dashboard", label: "Dashboard" }, { key: "properties", label: "Properties" }, { key: "users", label: "Users" }, { key: "devices", label: "Devices" }] },
+  { group: "Finance", mods: [{ key: "billing", label: "Billing" }, { key: "invoices", label: "Invoices" }, { key: "reports", label: "Reports" }] },
+  { group: "System", mods: [{ key: "audit", label: "Audit Logs" }, { key: "settings", label: "Settings" }, { key: "integrations", label: "Integrations" }] },
 ];
+const ALL_MODS = MODULE_GROUPS.flatMap(g => g.mods);
 
-const emptyRole = (): Omit<RoleItem, "id"> => ({
-  name: "",
-  description: "",
-  permissions: Object.fromEntries(MODULES.map((m) => [m.key, false])),
+const roleBadge = (name: string) => {
+  if (name === "Owner") return "bg-amber-100 text-amber-700";
+  if (name === "Manager") return "bg-blue-100 text-blue-700";
+  if (name === "Receptionist") return "bg-slate-100 text-slate-600";
+  return "bg-purple-100 text-purple-700";
+};
+
+const freshRole = (): Omit<RoleItem, "id"> => ({
+  name: "", description: "",
+  permissions: Object.fromEntries(ALL_MODS.map(m => [m.key, false])),
 });
+
+function Toggle({ value, onClick }: { value: boolean; onClick: () => void }) {
+  return (
+    <button onClick={onClick}
+      className={clsx("relative h-6 w-11 rounded-full transition-colors duration-200 focus:outline-none shrink-0", value ? "bg-blue-700" : "bg-slate-200")}>
+      <span className={clsx("absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200", value ? "translate-x-5" : "translate-x-0")} />
+    </button>
+  );
+}
 
 export default function Roles() {
   const toast = useToast();
   const [roles, setRoles] = useState<RoleItem[]>(rolesMock);
   const [modal, setModal] = useState<{ mode: "add" | "edit"; item?: RoleItem } | null>(null);
-  const [form, setForm] = useState<Omit<RoleItem, "id">>(emptyRole());
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [deleteTarget, setDeleteTarget] = useState<RoleItem | null>(null);
+  const [form, setForm] = useState<Omit<RoleItem, "id">>(freshRole());
+  const [errs, setErrs] = useState<Record<string, string>>({});
+  const [delTarget, setDelTarget] = useState<RoleItem | null>(null);
 
-  const togglePermission = (roleId: string, moduleKey: string) => {
-    setRoles((prev) => prev.map((r) => r.id === roleId ? { ...r, permissions: { ...r.permissions, [moduleKey]: !r.permissions[moduleKey] } } : r));
-  };
+  const togglePerm = (roleId: string, key: string) =>
+    setRoles(p => p.map(r => r.id === roleId ? { ...r, permissions: { ...r.permissions, [key]: !r.permissions[key] } } : r));
+  const setGroupAll = (roleId: string, keys: string[], val: boolean) =>
+    setRoles(p => p.map(r => r.id === roleId ? { ...r, permissions: { ...r.permissions, ...Object.fromEntries(keys.map(k => [k, val])) } } : r));
 
-  const openAdd = () => { setForm(emptyRole()); setFormErrors({}); setModal({ mode: "add" }); };
-  const openEdit = (item: RoleItem) => { setForm({ name: item.name, description: item.description, permissions: { ...item.permissions } }); setFormErrors({}); setModal({ mode: "edit", item }); };
+  const openAdd = () => { setForm(freshRole()); setErrs({}); setModal({ mode: "add" }); };
+  const openEdit = (item: RoleItem) => { setForm({ name: item.name, description: item.description, permissions: { ...item.permissions } }); setErrs({}); setModal({ mode: "edit", item }); };
 
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Role name is required";
-    setFormErrors(e);
-    return Object.keys(e).length === 0;
+    setErrs(e); return !Object.keys(e).length;
   };
 
-  const handleSubmit = () => {
+  const submit = () => {
     if (!validate()) return;
-    if (modal?.mode === "add") {
-      setRoles((prev) => [...prev, { ...form, id: `role_${Date.now()}` }]);
-      toast("Role created successfully");
-    } else if (modal?.mode === "edit" && modal.item) {
-      setRoles((prev) => prev.map((r) => r.id === modal.item!.id ? { ...r, ...form } : r));
-      toast("Role updated successfully");
-    }
+    if (modal?.mode === "add") { setRoles(p => [...p, { ...form, id: `role_${Date.now()}` }]); toast("Role created"); }
+    else if (modal?.mode === "edit" && modal.item) { setRoles(p => p.map(r => r.id === modal.item!.id ? { ...r, ...form } : r)); toast("Role updated"); }
     setModal(null);
   };
 
-  const handleDuplicate = (item: RoleItem) => {
-    const copy: RoleItem = { ...item, id: `role_${Date.now()}`, name: `${item.name} (Copy)` };
-    setRoles((prev) => [...prev, copy]);
+  const dup = (item: RoleItem) => {
+    setRoles(p => [...p, { ...item, id: `role_${Date.now()}`, name: `${item.name} (Copy)` }]);
     toast(`"${item.name}" duplicated`);
   };
 
-  const handleDelete = () => {
-    if (!deleteTarget) return;
-    setRoles((prev) => prev.filter((r) => r.id !== deleteTarget.id));
-    toast(`Role "${deleteTarget.name}" deleted`, "error");
-    setDeleteTarget(null);
+  const del = () => {
+    if (!delTarget) return;
+    setRoles(p => p.filter(r => r.id !== delTarget.id));
+    toast(`"${delTarget.name}" deleted`, "error");
+    setDelTarget(null);
   };
 
-  const toggleFormPermission = (key: string) => {
-    setForm((prev) => ({ ...prev, permissions: { ...prev.permissions, [key]: !prev.permissions[key] } }));
-  };
+  const toggleForm = (key: string) => setForm(p => ({ ...p, permissions: { ...p.permissions, [key]: !p.permissions[key] } }));
+  const formGroupAll = (keys: string[], val: boolean) => setForm(p => ({ ...p, permissions: { ...p.permissions, ...Object.fromEntries(keys.map(k => [k, val])) } }));
+  const formAll = (val: boolean) => setForm(p => ({ ...p, permissions: Object.fromEntries(ALL_MODS.map(m => [m.key, val])) }));
 
   return (
     <MainLayout>
       <div className="space-y-6">
-        <PageHeader title="Roles & Permissions" subtitle="Define access levels and module visibility per role." primaryActionLabel="Add Role" onPrimaryAction={openAdd} />
+        <PageHeader title="Roles & Permissions" subtitle="Define module-level access for each staff role." primaryActionLabel="Add Role" onPrimaryAction={openAdd} />
 
-        {roles.map((role) => {
-          const enabledCount = Object.values(role.permissions).filter(Boolean).length;
-          return (
-            <div key={role.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <div className="text-base font-semibold text-slate-900">{role.name}</div>
-                  <div className="text-sm text-slate-500 mt-0.5">{role.description}</div>
-                  <div className="mt-1.5 text-xs text-slate-400">{enabledCount} of {MODULES.length} modules enabled</div>
-                </div>
-                <ActionMenu actions={[
-                  { label: "Edit Role", icon: <Pencil size={14} />, onClick: () => openEdit(role) },
-                  { label: "Duplicate", icon: <Copy size={14} />, onClick: () => handleDuplicate(role) },
-                  { label: "Delete Role", icon: <Trash2 size={14} />, onClick: () => setDeleteTarget(role), variant: "danger" },
-                ]} />
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {MODULES.map((module) => {
-                  const enabled = role.permissions[module.key];
-                  return (
-                    <div key={module.key} className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
-                      <span className="text-sm text-slate-700">{module.label}</span>
-                      <button
-                        onClick={() => togglePermission(role.id, module.key)}
-                        className={clsx("relative h-6 w-11 rounded-full transition-colors duration-200 focus:outline-none", enabled ? "bg-blue-900" : "bg-slate-200")}
-                      >
-                        <span className={clsx("absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200", enabled ? "translate-x-5" : "translate-x-0")} />
-                      </button>
+        {roles.length === 0
+          ? <EmptyState icon="🔐" title="No roles defined" description="Create the first role to control staff access."
+              action={{ label: "Add Role", onClick: openAdd }} />
+          : roles.map(role => {
+            const enabled = Object.values(role.permissions).filter(Boolean).length;
+            return (
+              <div key={role.id} className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/60">
+                  <div className="flex items-center gap-3">
+                    <span className={clsx("rounded-2xl px-3 py-1 text-xs font-bold", roleBadge(role.name))}>{role.name}</span>
+                    <div>
+                      <p className="text-sm text-slate-600">{role.description}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{enabled}/{ALL_MODS.length} modules enabled</p>
                     </div>
-                  );
-                })}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setGroupAll(role.id, ALL_MODS.map(m => m.key), true)}
+                      className="rounded-xl border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50">All on</button>
+                    <button onClick={() => setGroupAll(role.id, ALL_MODS.map(m => m.key), false)}
+                      className="rounded-xl border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50">All off</button>
+                    <ActionMenu actions={[
+                      { label: "Edit", icon: <Pencil size={14} />, onClick: () => openEdit(role) },
+                      { label: "Duplicate", icon: <Copy size={14} />, onClick: () => dup(role) },
+                      { label: "Delete", icon: <Trash2 size={14} />, onClick: () => setDelTarget(role), variant: "danger" },
+                    ]} />
+                  </div>
+                </div>
+                <div className="p-5 space-y-5">
+                  {MODULE_GROUPS.map(({ group, mods }) => {
+                    const keys = mods.map(m => m.key);
+                    const allOn = keys.every(k => role.permissions[k]);
+                    const someOn = keys.some(k => role.permissions[k]);
+                    return (
+                      <div key={group}>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{group}</p>
+                          <button onClick={() => setGroupAll(role.id, keys, !allOn)}
+                            className={clsx("text-xs font-medium rounded-lg px-2 py-0.5 transition",
+                              allOn ? "text-blue-700 bg-blue-50" : someOn ? "text-amber-700 bg-amber-50" : "text-slate-500 bg-slate-100")}>
+                            {allOn ? "Disable all" : "Enable all"}
+                          </button>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                          {mods.map(({ key, label }) => (
+                            <div key={key} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 px-4 py-2.5">
+                              <span className={clsx("text-sm", role.permissions[key] ? "font-medium text-slate-800" : "text-slate-400")}>{label}</span>
+                              <Toggle value={!!role.permissions[key]} onClick={() => togglePerm(role.id, key)} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
-
-        {roles.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 py-16 text-center">
-            <div className="text-4xl">🔐</div>
-            <div className="mt-3 text-base font-medium text-slate-700">No roles defined yet</div>
-            <button onClick={openAdd} className="mt-3 rounded-2xl bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800">Add First Role</button>
-          </div>
-        )}
+            );
+          })}
       </div>
 
-      {/* Add / Edit Modal */}
-      <FormModal open={!!modal} title={modal?.mode === "add" ? "Create Role" : "Edit Role"} subtitle="Define the role name and its module-level permissions." onClose={() => setModal(null)} onSubmit={handleSubmit} submitLabel={modal?.mode === "add" ? "Create Role" : "Save Changes"} wide>
+      <FormModal open={!!modal} title={modal?.mode === "add" ? "Create Role" : "Edit Role"}
+        subtitle="Set role name and module-level permissions." onClose={() => setModal(null)} onSubmit={submit}
+        submitLabel={modal?.mode === "add" ? "Create" : "Save"} wide>
         <div className="space-y-5">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Role Name *</label>
-            <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Housekeeping Supervisor"
-              className={clsx("w-full rounded-2xl border px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200", formErrors.name ? "border-red-300 bg-red-50" : "border-slate-200")} />
-            {formErrors.name && <p className="mt-1 text-xs text-red-500">{formErrors.name}</p>}
+            <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Housekeeping Lead"
+              className={clsx("w-full rounded-2xl border px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200",
+                errs.name ? "border-red-300 bg-red-50" : "border-slate-200")} />
+            {errs.name && <p className="mt-1 text-xs text-red-500">{errs.name}</p>}
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700">Description</label>
-            <input value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} placeholder="Brief description of this role's responsibilities"
+            <input value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} placeholder="Brief description"
               className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200" />
           </div>
           <div>
-            <label className="mb-3 block text-sm font-medium text-slate-700">Module Permissions</label>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {MODULES.map((m) => (
-                <div key={m.key} className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3">
-                  <span className="text-sm text-slate-700">{m.label}</span>
-                  <button onClick={() => toggleFormPermission(m.key)}
-                    className={clsx("relative h-6 w-11 rounded-full transition-colors duration-200", form.permissions[m.key] ? "bg-blue-900" : "bg-slate-200")}>
-                    <span className={clsx("absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200", form.permissions[m.key] ? "translate-x-5" : "translate-x-0")} />
-                  </button>
-                </div>
-              ))}
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium text-slate-700">Permissions</label>
+              <div className="flex gap-2 text-xs">
+                <button onClick={() => formAll(true)} className="text-blue-700 hover:underline">Enable All</button>
+                <span className="text-slate-300">|</span>
+                <button onClick={() => formAll(false)} className="text-slate-500 hover:underline">Clear All</button>
+              </div>
+            </div>
+            <div className="space-y-4">
+              {MODULE_GROUPS.map(({ group, mods }) => {
+                const keys = mods.map(m => m.key);
+                const allOn = keys.every(k => form.permissions[k]);
+                return (
+                  <div key={group}>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{group}</p>
+                      <button onClick={() => formGroupAll(keys, !allOn)} className="text-xs text-blue-600 hover:underline">{allOn ? "Disable all" : "Enable all"}</button>
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {mods.map(({ key, label }) => (
+                        <div key={key} className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-2.5">
+                          <span className="text-sm text-slate-700">{label}</span>
+                          <Toggle value={!!form.permissions[key]} onClick={() => toggleForm(key)} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </FormModal>
 
-      <ConfirmModal open={!!deleteTarget} title="Delete Role?" message={`Remove the "${deleteTarget?.name}" role permanently? Users assigned to this role will lose their access.`} confirmLabel="Delete Role" variant="danger" onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
+      <ConfirmModal open={!!delTarget} title="Delete Role?"
+        message={`Remove "${delTarget?.name}"? Users with this role will lose access.`}
+        confirmLabel="Delete" variant="danger" onConfirm={del} onCancel={() => setDelTarget(null)} />
     </MainLayout>
   );
 }

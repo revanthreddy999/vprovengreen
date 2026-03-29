@@ -13,7 +13,7 @@ export const PATHS = {
   settings: "/settings",
   paymentSettings: "/settings/payment",
   notifications: "/settings/notifications",
-  // Operations
+  tenants: "/tenants",
   checkIn: "/operations/check-in",
   activeStays: "/operations/active-stays",
   checkOut: "/operations/check-out",

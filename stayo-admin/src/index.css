@@ -1,39 +1,13 @@
 @import "tailwindcss";
 
 @layer base {
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-
-  body {
-    @apply bg-slate-50 text-slate-900 antialiased;
-  }
-
-  .input {
-    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { @apply bg-slate-50 text-slate-900 antialiased; }
+  .input { @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200; }
 }
 
-@layer utilities {
-  .animate-in {
-    animation: slideIn 0.2s ease-out;
-  }
-  .slide-in-from-right-4 {
-    --tw-enter-translate-x: 1rem;
-  }
-  .fade-in {
-    animation: fadeIn 0.2s ease-out;
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-spin { animation: spin 1s linear infinite; }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(var(--tw-enter-translate-x, 0)); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: fadeUp 0.18s ease-out; }
