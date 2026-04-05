@@ -56,9 +56,9 @@ export default function SupportDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { label: "Recover User Access", icon: <Users size={16} />, path: PATHS.recoverUser, color: "text-blue-700 bg-blue-50 border-blue-100" },
-              { label: "Force Password Reset", icon: <RefreshCw size={16} />, path: PATHS.recoverUser, color: "text-amber-700 bg-amber-50 border-amber-100" },
-              { label: "Unlock Account", icon: <Lock size={16} />, path: PATHS.recoverUser, color: "text-emerald-700 bg-emerald-50 border-emerald-100" },
-              { label: "Reset MFA", icon: <Shield size={16} />, path: PATHS.recoverUser, color: "text-purple-700 bg-purple-50 border-purple-100" },
+              { label: "Force Password Reset", icon: <RefreshCw size={16} />, path: PATHS.forcePasswordReset, color: "text-amber-700 bg-amber-50 border-amber-100" },
+              { label: "Unlock Account", icon: <Lock size={16} />, path: PATHS.unlockUser, color: "text-emerald-700 bg-emerald-50 border-emerald-100" },
+              { label: "Reset MFA", icon: <Shield size={16} />, path: PATHS.resetMFA, color: "text-purple-700 bg-purple-50 border-purple-100" },
             ].map((a, i) => (
               <button key={i} onClick={() => navigate(a.path)}
                 className={`flex items-center gap-2.5 rounded-2xl border px-4 py-3.5 text-sm font-medium transition hover:opacity-80 ${a.color}`}>

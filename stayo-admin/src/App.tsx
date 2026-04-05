@@ -9,15 +9,18 @@ import Login from "./pages/login/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ForgotUsername from "./pages/auth/ForgotUsername";
 import ResetPassword from "./pages/auth/ResetPassword";
+import ChangePassword from "./pages/auth/ChangePassword";
 import InviteAccept from "./pages/auth/InviteAccept";
 import MFAVerification from "./pages/auth/MFAVerification";
 import SetupAuthenticator from "./pages/auth/SetupAuthenticator";
 import BackupCodes from "./pages/auth/BackupCodes";
+import TrustedDevice from "./pages/auth/TrustedDevice";
+import AccountLocked from "./pages/auth/AccountLocked";
 
 // Core
 import Dashboard from "./pages/dashboard/Dashboard";
 
-// Tenants (Super Admin)
+// Tenants
 import TenantsList from "./pages/tenants/TenantsList";
 import TenantNew from "./pages/tenants/TenantNew";
 import TenantDetail from "./pages/tenants/TenantDetail";
@@ -48,7 +51,9 @@ import RoleDetail from "./pages/roles/RoleDetail";
 import RoleEdit from "./pages/roles/RoleEdit";
 
 // Devices
-import Devices from "./pages/devices/Devices";
+import DevicesList from "./pages/devices/DevicesList";
+import DeviceNew from "./pages/devices/DeviceNew";
+import DeviceDetail from "./pages/devices/DeviceDetail";
 
 // Finance
 import Plans from "./pages/plans/Plans";
@@ -79,6 +84,9 @@ import SessionHistory from "./pages/settings/SessionHistory";
 import SupportLogin from "./pages/support/SupportLogin";
 import SupportDashboard from "./pages/support/SupportDashboard";
 import RecoverUser from "./pages/support/RecoverUser";
+import UnlockUser from "./pages/support/UnlockUser";
+import ForcePasswordReset from "./pages/support/ForcePasswordReset";
+import ResetMFA from "./pages/support/ResetMFA";
 
 export default function App() {
   return (
@@ -92,15 +100,18 @@ export default function App() {
               <Route path={PATHS.forgotPassword} element={<ForgotPassword />} />
               <Route path={PATHS.forgotUsername} element={<ForgotUsername />} />
               <Route path={PATHS.resetPassword} element={<ResetPassword />} />
+              <Route path={PATHS.changePassword} element={<ChangePassword />} />
               <Route path={PATHS.inviteAccept} element={<InviteAccept />} />
               <Route path={PATHS.mfa} element={<MFAVerification />} />
               <Route path={PATHS.setupAuthenticator} element={<SetupAuthenticator />} />
               <Route path={PATHS.backupCodes} element={<BackupCodes />} />
+              <Route path={PATHS.trustedDevice} element={<TrustedDevice />} />
+              <Route path={PATHS.accountLocked} element={<AccountLocked />} />
 
               {/* Dashboard */}
               <Route path={PATHS.dashboard} element={<Dashboard />} />
 
-              {/* Tenants (Super Admin) */}
+              {/* Tenants */}
               <Route path={PATHS.tenants} element={<TenantsList />} />
               <Route path={PATHS.tenantNew} element={<TenantNew />} />
               <Route path={PATHS.tenantDetail} element={<TenantDetail />} />
@@ -131,7 +142,9 @@ export default function App() {
               <Route path={PATHS.roleEdit} element={<RoleEdit />} />
 
               {/* Devices */}
-              <Route path={PATHS.devices} element={<Devices />} />
+              <Route path={PATHS.devices} element={<DevicesList />} />
+              <Route path={PATHS.deviceNew} element={<DeviceNew />} />
+              <Route path={PATHS.deviceDetail} element={<DeviceDetail />} />
 
               {/* Finance */}
               <Route path={PATHS.plans} element={<Plans />} />
@@ -162,6 +175,9 @@ export default function App() {
               <Route path={PATHS.supportLogin} element={<SupportLogin />} />
               <Route path={PATHS.support} element={<SupportDashboard />} />
               <Route path={PATHS.recoverUser} element={<RecoverUser />} />
+              <Route path={PATHS.unlockUser} element={<UnlockUser />} />
+              <Route path={PATHS.forcePasswordReset} element={<ForcePasswordReset />} />
+              <Route path={PATHS.resetMFA} element={<ResetMFA />} />
             </Routes>
           </NavLoaderProvider>
         </ToastProvider>

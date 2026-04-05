@@ -8,8 +8,8 @@
       "src": "^/stayo-admin/(.*)",
       "dest": "/index.html"
     }
-  ],
-    "rewrites": [
+  ],  
+  "rewrites": [
     {
       "source": "/stayo-admin/(.*)",
       "destination": "/stayo-admin/index.html"

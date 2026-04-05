@@ -7,11 +7,14 @@ export const PATHS = {
   forgotPassword: "/auth/forgot-password",
   forgotUsername: "/auth/forgot-username",
   resetPassword: "/auth/reset-password",
+  changePassword: "/auth/change-password",
   mfa: "/auth/mfa",
   setupAuthenticator: "/auth/setup-authenticator",
   backupCodes: "/auth/backup-codes",
+  trustedDevice: "/auth/trusted-device",
+  accountLocked: "/auth/account-locked",
 
-  // Super Admin
+  // Super Admin — Tenants
   tenants: "/super-admin/tenants",
   tenantNew: "/super-admin/tenants/new",
   tenantDetail: "/super-admin/tenants/:id",
@@ -75,9 +78,11 @@ export const PATHS = {
   supportLogin: "/support/login",
   support: "/support",
   recoverUser: "/support/recover-user",
+  unlockUser: "/support/unlock-user",
+  forcePasswordReset: "/support/force-password-reset",
+  resetMFA: "/support/reset-mfa",
 } as const;
 
-// Helper to build concrete paths from route templates
 export const buildPath = {
   tenantDetail: (id: string) => `/super-admin/tenants/${id}`,
   tenantEdit: (id: string) => `/super-admin/tenants/${id}/edit`,
@@ -89,6 +94,7 @@ export const buildPath = {
   userEdit: (id: string) => `/users/${id}/edit`,
   roleDetail: (id: string) => `/roles/${id}`,
   roleEdit: (id: string) => `/roles/${id}/edit`,
+  deviceDetail: (id: string) => `/devices/${id}`,
   stayDetail: (id: string) => `/operations/active-stays/${id}`,
   invoiceDetail: (id: string) => `/invoices/${id}`,
 };
