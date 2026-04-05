@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastProvider } from "./context/ToastContext";
 import { NavLoaderProvider } from "./context/NavLoaderContext";
 import { TenantProvider } from "./context/TenantContext";
@@ -82,7 +82,7 @@ import RecoverUser from "./pages/support/RecoverUser";
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter basename="/stayo-admin">
       <TenantProvider>
         <ToastProvider>
           <NavLoaderProvider>
@@ -166,6 +166,6 @@ export default function App() {
           </NavLoaderProvider>
         </ToastProvider>
       </TenantProvider>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
