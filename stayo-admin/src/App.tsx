@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ToastProvider } from "./context/ToastContext";
 import { NavLoaderProvider } from "./context/NavLoaderContext";
 import { TenantProvider } from "./context/TenantContext";
@@ -108,8 +108,9 @@ export default function App() {
               <Route path={PATHS.trustedDevice} element={<TrustedDevice />} />
               <Route path={PATHS.accountLocked} element={<AccountLocked />} />
 
-              {/* Dashboard */}
-              <Route path={PATHS.dashboard} element={<Dashboard />} />
+              {/* Root → Login redirect */}
+              <Route path="/" element={<Navigate to={PATHS.login} replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
 
               {/* Tenants */}
               <Route path={PATHS.tenants} element={<TenantsList />} />

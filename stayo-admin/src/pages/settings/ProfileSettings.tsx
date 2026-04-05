@@ -4,6 +4,8 @@ import PageHeader from "../../components/ui/PageHeader";
 import { FormSection, FormField, inp, sel } from "../../components/ui/FormSection";
 import { useToast } from "../../context/ToastContext";
 import { usersMock } from "../../mock/users";
+import { SingleImageUpload } from "../../components/ui/ImageUpload";
+import type { MediaFile } from "../../types/media";
 import { Camera, User } from "lucide-react";
 
 const me = usersMock[4]; // Admin user
@@ -21,6 +23,7 @@ export default function ProfileSettings() {
     bio: "",
   });
   const [saving, setSaving] = useState(false);
+  const [avatarPhoto, setAvatarPhoto] = useState<MediaFile | null>(null);
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
 
   const handleSave = () => {
@@ -40,13 +43,21 @@ export default function ProfileSettings() {
 
         {/* Avatar */}
         <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6 flex items-center gap-6">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-3xl font-bold">
-              {me.fullName[0]}
-            </div>
-            <button className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-blue-900 text-white flex items-center justify-center hover:bg-blue-800 transition">
-              <Camera size={13} />
-            </button>
+          <div className="w-24 shrink-0">
+            {avatarPhoto
+              ? <SingleImageUpload label="" value={avatarPhoto} onChange={setAvatarPhoto} />
+              : <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-3xl font-bold">
+                    {me.fullName[0]}
+                  </div>
+                  <button onClick={() => document.getElementById("avatar-input")?.click()}
+                    className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-blue-900 text-white flex items-center justify-center hover:bg-blue-800 transition">
+                    <Camera size={13} />
+                  </button>
+                  <input id="avatar-input" type="file" accept="image/*" className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) setAvatarPhoto({ id: "av_1", label: "Profile Photo", fileName: f.name, fileSize: `${(f.size/1024/1024).toFixed(1)} MB`, uploadedAt: "Today", url: URL.createObjectURL(f) }); }} />
+                </div>
+            }
           </div>
           <div>
             <p className="font-semibold text-slate-900">{me.fullName}</p>

@@ -1,10 +1,29 @@
-import type { Room } from "../types/room";
+import type { Room, PricingWindow, RoomPhoto } from "../types/room";
+
+const mockPhotos = (roomNum: string): RoomPhoto[] => [
+  { id: `ph_${roomNum}_1`, label: "Main View", fileName: `room_${roomNum}_main.jpg`, fileSize: "1.2 MB", uploadedAt: "01 Jan 2026", isPrimary: true, url: `https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600` },
+  { id: `ph_${roomNum}_2`, label: "Bathroom", fileName: `room_${roomNum}_bath.jpg`, fileSize: "0.9 MB", uploadedAt: "01 Jan 2026", isPrimary: false, url: `https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600` },
+];
+
+const weekendSurge: PricingWindow = {
+  id: "pw_weekend", label: "Weekend Surge",
+  startDate: "2026-04-05", startTime: "12:00",
+  endDate: "2026-04-06", endTime: "23:59",
+  hourlyRate: 0, halfDayRate: 0, fullDayRate: 0, // filled per room
+  reason: "Weekend demand",
+  active: true, createdAt: "01 Mar 2026",
+};
 
 export const roomsMgmtMock: Room[] = [
   {
     id: "rm_01", roomNumber: "101", propertyId: "p1", propertyName: "Stayo Tirupati Central",
     floor: 1, roomType: "Standard", capacity: 2, maxAdults: 2, maxChildren: 1,
     hourlyRate: 150, halfDayRate: 500, fullDayRate: 900,
+    pricingWindows: [
+      { ...weekendSurge, id: "pw_rm01_1", hourlyRate: 200, halfDayRate: 650, fullDayRate: 1100 },
+      { id: "pw_rm01_2", label: "Diwali Season", startDate: "2026-10-20", startTime: "00:00", endDate: "2026-10-24", endTime: "23:59", hourlyRate: 250, halfDayRate: 800, fullDayRate: 1400, reason: "Diwali festival peak", active: true, createdAt: "15 Mar 2026" },
+    ],
+    photos: mockPhotos("101"),
     amenities: ["AC", "TV", "WiFi", "Geyser"],
     housekeepingStatus: "Clean", occupancyStatus: "Available",
     maintenanceBlock: false, status: "Active",
@@ -15,6 +34,8 @@ export const roomsMgmtMock: Room[] = [
     id: "rm_02", roomNumber: "102", propertyId: "p1", propertyName: "Stayo Tirupati Central",
     floor: 1, roomType: "Standard", capacity: 2, maxAdults: 2, maxChildren: 1,
     hourlyRate: 150, halfDayRate: 500, fullDayRate: 900,
+    pricingWindows: [],
+    photos: mockPhotos("102"),
     amenities: ["AC", "TV", "WiFi", "Geyser"],
     housekeepingStatus: "Dirty", occupancyStatus: "Occupied",
     maintenanceBlock: false, status: "Active",
@@ -25,6 +46,12 @@ export const roomsMgmtMock: Room[] = [
     id: "rm_03", roomNumber: "103", propertyId: "p1", propertyName: "Stayo Tirupati Central",
     floor: 1, roomType: "Deluxe", capacity: 3, maxAdults: 2, maxChildren: 1,
     hourlyRate: 250, halfDayRate: 800, fullDayRate: 1400,
+    pricingWindows: [
+      { ...weekendSurge, id: "pw_rm03_1", hourlyRate: 320, halfDayRate: 1000, fullDayRate: 1800 },
+    ],
+    photos: [
+      { id: "ph_103_1", label: "Main View", fileName: "room_103_main.jpg", fileSize: "1.4 MB", uploadedAt: "01 Jan 2026", isPrimary: true, url: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600" },
+    ],
     amenities: ["AC", "TV", "WiFi", "Geyser", "Mini Bar", "Bathtub"],
     housekeepingStatus: "In Progress", occupancyStatus: "Available",
     maintenanceBlock: false, status: "Active",
@@ -35,6 +62,8 @@ export const roomsMgmtMock: Room[] = [
     id: "rm_04", roomNumber: "201", propertyId: "p1", propertyName: "Stayo Tirupati Central",
     floor: 2, roomType: "Deluxe", capacity: 3, maxAdults: 2, maxChildren: 2,
     hourlyRate: 250, halfDayRate: 800, fullDayRate: 1400,
+    pricingWindows: [],
+    photos: mockPhotos("201"),
     amenities: ["AC", "TV", "WiFi", "Geyser", "Mini Bar"],
     housekeepingStatus: "Clean", occupancyStatus: "Occupied",
     maintenanceBlock: false, status: "Active",
@@ -45,6 +74,13 @@ export const roomsMgmtMock: Room[] = [
     id: "rm_05", roomNumber: "202", propertyId: "p1", propertyName: "Stayo Tirupati Central",
     floor: 2, roomType: "Suite", capacity: 4, maxAdults: 3, maxChildren: 2,
     hourlyRate: 450, halfDayRate: 1400, fullDayRate: 2500,
+    pricingWindows: [
+      { id: "pw_rm05_1", label: "Summer Peak", startDate: "2026-05-01", startTime: "00:00", endDate: "2026-06-30", endTime: "23:59", hourlyRate: 550, halfDayRate: 1700, fullDayRate: 3000, reason: "Summer tourism season", active: true, createdAt: "20 Feb 2026" },
+    ],
+    photos: [
+      { id: "ph_202_1", label: "Suite View", fileName: "room_202_main.jpg", fileSize: "1.6 MB", uploadedAt: "01 Jan 2026", isPrimary: true, url: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600" },
+      { id: "ph_202_2", label: "Living Area", fileName: "room_202_living.jpg", fileSize: "1.1 MB", uploadedAt: "01 Jan 2026", isPrimary: false, url: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600" },
+    ],
     amenities: ["AC", "TV", "WiFi", "Geyser", "Mini Bar", "Bathtub", "Balcony", "Sofa"],
     housekeepingStatus: "Inspected", occupancyStatus: "Available",
     maintenanceBlock: false, status: "Active",
@@ -55,6 +91,8 @@ export const roomsMgmtMock: Room[] = [
     id: "rm_06", roomNumber: "301", propertyId: "p2", propertyName: "Stayo Chennai Grand",
     floor: 3, roomType: "Standard", capacity: 2, maxAdults: 2, maxChildren: 0,
     hourlyRate: 180, halfDayRate: 600, fullDayRate: 1000,
+    pricingWindows: [],
+    photos: mockPhotos("301"),
     amenities: ["AC", "TV", "WiFi"],
     housekeepingStatus: "Clean", occupancyStatus: "Available",
     maintenanceBlock: false, status: "Active",
@@ -65,6 +103,8 @@ export const roomsMgmtMock: Room[] = [
     id: "rm_07", roomNumber: "302", propertyId: "p2", propertyName: "Stayo Chennai Grand",
     floor: 3, roomType: "Executive", capacity: 2, maxAdults: 2, maxChildren: 1,
     hourlyRate: 350, halfDayRate: 1100, fullDayRate: 1900,
+    pricingWindows: [],
+    photos: [],
     amenities: ["AC", "TV", "WiFi", "Work Desk", "Coffee Maker", "Safe"],
     housekeepingStatus: "Clean", occupancyStatus: "Reserved",
     maintenanceBlock: false, status: "Active",
@@ -75,6 +115,8 @@ export const roomsMgmtMock: Room[] = [
     id: "rm_08", roomNumber: "401", propertyId: "p2", propertyName: "Stayo Chennai Grand",
     floor: 4, roomType: "Suite", capacity: 4, maxAdults: 3, maxChildren: 2,
     hourlyRate: 500, halfDayRate: 1600, fullDayRate: 2800,
+    pricingWindows: [],
+    photos: [],
     amenities: ["AC", "TV", "WiFi", "Geyser", "Mini Bar", "Bathtub", "Living Room"],
     housekeepingStatus: "Dirty", occupancyStatus: "Available",
     maintenanceBlock: true, status: "Active",
@@ -85,6 +127,8 @@ export const roomsMgmtMock: Room[] = [
     id: "rm_09", roomNumber: "105", propertyId: "p3", propertyName: "Stayo Hyderabad Hub",
     floor: 1, roomType: "Standard", capacity: 2, maxAdults: 2, maxChildren: 1,
     hourlyRate: 120, halfDayRate: 400, fullDayRate: 700,
+    pricingWindows: [],
+    photos: [],
     amenities: ["AC", "TV", "WiFi"],
     housekeepingStatus: "Clean", occupancyStatus: "Available",
     maintenanceBlock: false, status: "Inactive",

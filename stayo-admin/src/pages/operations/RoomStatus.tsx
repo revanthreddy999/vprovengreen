@@ -4,7 +4,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import StatCard from "../../components/ui/StatCard";
 import { useToast } from "../../context/ToastContext";
 import { roomsMock, activeStaysMock } from "../../mock/operations";
-import type { Room, RoomStatus, RoomType } from "../../types/operations";
+import type { OpsRoom as Room, OpsRoomStatus as RoomStatus, OpsRoomType as RoomType } from "../../types/operations";
 import { X, BedDouble, Users, Clock } from "lucide-react";
 import clsx from "clsx";
 
@@ -16,9 +16,11 @@ const STATUS_CFG: Record<RoomStatus, { bg: string; border: string; text: string;
 };
 
 const TYPE_CLR: Record<RoomType, string> = {
-  Standard: "bg-slate-100 text-slate-600",
-  Deluxe:   "bg-purple-100 text-purple-700",
-  Suite:    "bg-cyan-100 text-cyan-700",
+  Standard:  "bg-slate-100 text-slate-600",
+  Deluxe:    "bg-purple-100 text-purple-700",
+  Suite:     "bg-cyan-100 text-cyan-700",
+  Executive: "bg-amber-100 text-amber-700",
+  Studio:    "bg-emerald-100 text-emerald-700",
 };
 
 function RoomModal({ room, onClose, onStatusChange }: { room: Room; onClose: () => void; onStatusChange: (id: string, s: RoomStatus) => void }) {

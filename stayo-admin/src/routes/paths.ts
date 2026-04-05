@@ -1,6 +1,6 @@
 export const PATHS = {
   login: "/login",
-  dashboard: "/",
+  dashboard: "/dashboard",
 
   // Auth flows
   inviteAccept: "/auth/invite-accept",

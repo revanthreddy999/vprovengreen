@@ -9,15 +9,17 @@ import ActionMenu from "../../components/ui/ActionMenu";
 import StatusChip from "../../components/ui/StatusChip";
 import EmptyState from "../../components/ui/EmptyState";
 import { activeStaysMock } from "../../mock/operations";
-import { PATHS } from "../../routes/paths";
-import { Eye, LogOut, Clock, AlertTriangle, X } from "lucide-react";
+import { serviceChargesMock } from "../../mock/serviceCharges";
+import { summariseCharges } from "../../types/serviceCharge";
+import { PATHS, buildPath } from "../../routes/paths";
+import { Eye, LogOut, Clock, AlertTriangle, X, Receipt } from "lucide-react";
 import clsx from "clsx";
 import type { ActiveStay } from "../../types/operations";
 
 const PAGE_SIZE = 5;
 
 function Drawer({ stay, onClose, onCheckout }: { stay: ActiveStay; onClose: () => void; onCheckout: () => void }) {
-  const gst = Math.round(stay.baseAmount * 0.18);
+  const gst = Math.round(stay.roomSubtotal * 0.18);
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
@@ -56,9 +58,9 @@ function Drawer({ stay, onClose, onCheckout }: { stay: ActiveStay; onClose: () =
             <KV k="Payment" v={stay.paymentMethod} />
           </Sec>
           <Sec title="Billing Estimate">
-            <KV k="Room Charges" v={`₹${stay.baseAmount.toLocaleString()}`} />
+            <KV k="Room Charges" v={`₹${stay.roomSubtotal.toLocaleString()}`} />
             <KV k="GST (18%)" v={`₹${gst.toLocaleString()}`} />
-            <div className="border-t border-slate-100 pt-2"><KV k="Est. Total" v={`₹${(stay.baseAmount + gst).toLocaleString()}`} bold /></div>
+            <div className="border-t border-slate-100 pt-2"><KV k="Est. Total" v={`₹${(stay.roomSubtotal + gst).toLocaleString()}`} bold /></div>
           </Sec>
         </div>
 
@@ -124,7 +126,7 @@ export default function ActiveStays() {
           <StatCard title="Active" value={String(activeStaysMock.filter(s => s.status === "Active").length)} meta="In-house" trend="up" />
           <StatCard title="Extended" value={String(activeStaysMock.filter(s => s.status === "Extended").length)} meta="Over duration" />
           <StatCard title="Late Checkout" value={String(lateCount)} meta="Needs action" trend="down" />
-          <StatCard title="Revenue Today" value={`₹${activeStaysMock.reduce((a, s) => a + s.baseAmount, 0).toLocaleString()}`} meta="Active stays" trend="up" />
+          <StatCard title="Revenue Today" value={`₹${activeStaysMock.reduce((a, s) => a + s.roomSubtotal, 0).toLocaleString()}`} meta="Active stays" trend="up" />
         </div>
 
         <FilterBar searchPlaceholder="Search by name, room, or phone..."
@@ -169,11 +171,12 @@ export default function ActiveStays() {
                           <p className={clsx(s.status === "Late Checkout" ? "text-red-600 font-bold" : "text-slate-700")}>{s.checkOutTime}</p>
                           {s.status === "Late Checkout" && <p className="text-xs text-red-500 font-bold">OVERDUE</p>}
                         </td>
-                        <td className="px-5 py-4 font-semibold text-slate-900">₹{s.baseAmount.toLocaleString()}</td>
+                        <td className="px-5 py-4 font-semibold text-slate-900">₹{s.roomSubtotal.toLocaleString()}</td>
                         <td className="px-5 py-4"><StatusChip label={s.status} type={s.status === "Active" ? "success" : s.status === "Extended" ? "warning" : "error"} /></td>
                         <td className="px-5 py-4">
                           <ActionMenu actions={[
-                            { label: "View Details", icon: <Eye size={14} />, onClick: () => setDrawer(s) },
+                            { label: "View Stay", icon: <Eye size={14} />, onClick: () => nav(buildPath.stayDetail(s.id)) },
+                            { label: "Services & Charges", icon: <Receipt size={14} />, onClick: () => nav(buildPath.stayDetail(s.id) + "?tab=services") },
                             { label: "Proceed to Checkout", icon: <LogOut size={14} />, onClick: () => nav(PATHS.checkOut) },
                           ]} />
                         </td>

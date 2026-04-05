@@ -6,6 +6,8 @@ import { FormSection, FormField, inp, sel } from "../../components/ui/FormSectio
 import { useToast } from "../../context/ToastContext";
 import type { UserItem } from "../../types/user";
 import { PATHS, buildPath } from "../../routes/paths";
+import { SingleImageUpload } from "../../components/ui/ImageUpload";
+import type { MediaFile } from "../../types/media";
 import { propertiesMock } from "../../mock/properties";
 import { tenantsMock } from "../../mock/tenants";
 import { rolesMock } from "../../mock/roles";
@@ -26,6 +28,8 @@ export default function UserForm({ mode, initial }: Props) {
   const [form, setForm] = useState<Partial<UserItem>>(initial ? { ...initial } : empty());
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  const [profilePhoto, setProfilePhoto] = useState<MediaFile | null>(null);
 
   const set = (k: string, v: unknown) => setForm(p => ({ ...p, [k]: v }));
   const err = (k: string) => errs[k];
@@ -62,6 +66,20 @@ export default function UserForm({ mode, initial }: Props) {
           secondaryActionLabel="Cancel"
           onSecondaryAction={() => navigate(-1)}
         />
+
+        {/* Profile Photo */}
+        <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">Profile Photo</h3>
+          <div className="flex items-start gap-5">
+            <div className="w-24 shrink-0">
+              <SingleImageUpload label="" value={profilePhoto} onChange={setProfilePhoto} placeholder="Upload" />
+            </div>
+            <div className="text-sm text-slate-500 pt-1">
+              <p className="font-medium text-slate-700">Staff profile photo</p>
+              <p className="text-xs mt-1 text-slate-400">Used on guest-facing receipts and staff ID. JPG or PNG, max 5 MB.</p>
+            </div>
+          </div>
+        </div>
 
         <FormSection title="Personal Details">
           <FormField label="Full Name" required error={err("fullName")}>

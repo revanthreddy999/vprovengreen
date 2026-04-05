@@ -6,6 +6,8 @@ import { FormSection, FormField, inp, sel } from "../../components/ui/FormSectio
 import { useToast } from "../../context/ToastContext";
 import type { Property } from "../../types/property";
 import { PATHS, buildPath } from "../../routes/paths";
+import { SingleImageUpload, GalleryUpload } from "../../components/ui/ImageUpload";
+import type { MediaFile } from "../../types/media";
 import { tenantsMock } from "../../mock/tenants";
 
 type Mode = "new" | "edit";
@@ -41,6 +43,9 @@ export default function PropertyForm({ mode, initial }: Props) {
     setErrs(e);
     return Object.keys(e).length === 0;
   };
+
+  const [mainPhoto, setMainPhoto] = useState<MediaFile | null>(null);
+  const [gallery, setGallery] = useState<MediaFile[]>([]);
 
   const handleSubmit = () => {
     if (!validate()) return;
@@ -179,6 +184,22 @@ export default function PropertyForm({ mode, initial }: Props) {
             </select>
           </FormField>
         </FormSection>
+
+
+        {/* Photos */}
+        <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="border-b border-slate-100 px-6 py-4">
+            <h3 className="text-sm font-semibold text-slate-700">Property Photos</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Main photo shown in listings. Gallery photos for guest preview.</p>
+          </div>
+          <div className="p-6 space-y-5">
+            <SingleImageUpload label="Main / Cover Photo" value={mainPhoto} onChange={setMainPhoto} placeholder="Upload main property photo" />
+            <div>
+              <p className="text-xs font-medium text-slate-600 mb-2">Gallery Photos</p>
+              <GalleryUpload images={gallery} onChange={setGallery} maxImages={12} />
+            </div>
+          </div>
+        </div>
 
         <FormSection title="Notes">
           <FormField label="Internal Notes" span>
