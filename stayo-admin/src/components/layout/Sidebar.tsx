@@ -2,6 +2,7 @@ import {
   LayoutDashboard, Building2, Users, ShieldCheck, Smartphone,
   CreditCard, BarChart3, FileText, ScrollText, PlugZap, Settings,
   ClipboardCheck, BedDouble, LogIn, LogOut, ChevronDown, ChevronRight, Globe,
+  UserCircle, Lock, History, LifeBuoy,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -14,6 +15,7 @@ const mainNav: NavItem[] = [
   { label: "Dashboard", path: PATHS.dashboard, icon: LayoutDashboard },
   { label: "All Tenants", path: PATHS.tenants, icon: Globe },
   { label: "Properties", path: PATHS.properties, icon: Building2 },
+  { label: "Rooms", path: PATHS.rooms, icon: BedDouble },
   { label: "Users", path: PATHS.users, icon: Users },
   { label: "Roles & Permissions", path: PATHS.roles, icon: ShieldCheck },
   { label: "Devices", path: PATHS.devices, icon: Smartphone },
@@ -28,6 +30,9 @@ const settingsNav: NavItem[] = [
   { label: "Tenant Settings", path: PATHS.settings, icon: Settings },
   { label: "Payment Settings", path: PATHS.paymentSettings, icon: CreditCard },
   { label: "Notifications", path: PATHS.notifications, icon: Settings },
+  { label: "Security", path: PATHS.securitySettings, icon: Lock },
+  { label: "My Profile", path: PATHS.profile, icon: UserCircle },
+  { label: "Session History", path: PATHS.sessionHistory, icon: History },
 ];
 
 const opsNav: NavItem[] = [
@@ -37,10 +42,18 @@ const opsNav: NavItem[] = [
   { label: "Room Status", path: PATHS.roomStatus, icon: ClipboardCheck },
 ];
 
-function NavGroup({ items, label, icon: Icon, accent = "cyan" }: { items: NavItem[]; label: string; icon: React.ElementType; accent?: "cyan" | "amber" }) {
+const supportNav: NavItem[] = [
+  { label: "Support Dashboard", path: PATHS.support, icon: LifeBuoy },
+  { label: "Recover User", path: PATHS.recoverUser, icon: Users },
+];
+
+function NavGroup({ items, label, icon: Icon, accent = "cyan" }: { items: NavItem[]; label: string; icon: React.ElementType; accent?: "cyan" | "amber" | "rose" }) {
   const location = useLocation();
   const active = items.some(i => location.pathname === i.path || (i.path !== "/" && location.pathname.startsWith(i.path)));
   const [open, setOpen] = useState(active);
+
+  const activeClass = accent === "amber" ? "bg-amber-400/15 text-amber-300" : accent === "rose" ? "bg-rose-400/15 text-rose-300" : "bg-cyan-400/15 text-cyan-300";
+
   return (
     <div>
       <button onClick={() => setOpen(v => !v)}
@@ -56,9 +69,7 @@ function NavGroup({ items, label, icon: Icon, accent = "cyan" }: { items: NavIte
               <NavLink key={item.path} to={item.path} end={item.path === PATHS.dashboard}
                 className={({ isActive }) => clsx(
                   "flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-all",
-                  isActive
-                    ? accent === "amber" ? "bg-amber-400/15 text-amber-300" : "bg-cyan-400/15 text-cyan-300"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  isActive ? activeClass : "text-slate-300 hover:bg-white/5 hover:text-white"
                 )}>
                 <I size={15} /><span>{item.label}</span>
               </NavLink>
@@ -87,9 +98,12 @@ export default function Sidebar({ mobile }: { mobile?: boolean }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
+        {/* Front Desk */}
         <div className="rounded-2xl bg-amber-400/8 ring-1 ring-amber-400/20 p-2">
           <NavGroup items={opsNav} label="Front Desk" icon={BedDouble} accent="amber" />
         </div>
+
+        {/* Management */}
         <div className="space-y-0.5">
           <p className="px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">Management</p>
           {mainNav.map(item => {
@@ -105,18 +119,26 @@ export default function Sidebar({ mobile }: { mobile?: boolean }) {
             );
           })}
         </div>
-        <NavGroup items={settingsNav} label="Settings" icon={Settings} accent="cyan" />
+
+        {/* Settings group */}
+        <div className="rounded-2xl bg-white/3 ring-1 ring-white/5 p-2">
+          <NavGroup items={settingsNav} label="Settings & Profile" icon={Settings} accent="cyan" />
+        </div>
+
+        {/* Support group */}
+        <div className="rounded-2xl bg-rose-400/5 ring-1 ring-rose-400/10 p-2">
+          <NavGroup items={supportNav} label="Support" icon={LifeBuoy} accent="rose" />
+        </div>
       </nav>
 
-      <div className="border-t border-white/10 p-4 shrink-0">
-        <div className="rounded-2xl bg-white/5 p-3">
-          <p className="text-[10px] uppercase tracking-wide text-slate-400">Current Plan</p>
-          <p className="mt-1 text-base font-bold text-white">Enterprise</p>
-          <p className="text-xs text-slate-400">124 devices · 24 properties</p>
-          <div className="mt-2 h-1.5 w-full rounded-full bg-white/10">
-            <div className="h-1.5 w-4/5 rounded-full bg-cyan-400" />
+      <div className="border-t border-white/10 px-4 py-4 shrink-0">
+        <div className="flex items-center gap-3 px-2 py-1.5 rounded-2xl hover:bg-white/5 cursor-pointer transition">
+          <div className="w-8 h-8 rounded-full bg-cyan-400/20 flex items-center justify-center text-cyan-300 font-bold text-sm">A</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-white truncate">Admin User</p>
+            <p className="text-xs text-slate-400 truncate">admin@stayo.com</p>
           </div>
-          <p className="mt-1 text-xs text-slate-400">80% used</p>
+          <Settings size={14} className="text-slate-500 shrink-0" />
         </div>
       </div>
     </aside>

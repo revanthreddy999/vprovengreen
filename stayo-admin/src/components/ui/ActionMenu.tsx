@@ -7,14 +7,17 @@ export type ActionMenuItem = {
   icon?: React.ReactNode;
   onClick: () => void;
   variant?: "default" | "danger";
+  danger?: boolean; // alias for variant="danger"
   disabled?: boolean;
 };
 
 type Props = {
-  actions: ActionMenuItem[];
+  actions?: ActionMenuItem[];
+  items?: ActionMenuItem[]; // alias for actions
 };
 
-export default function ActionMenu({ actions }: Props) {
+export default function ActionMenu({ actions, items }: Props) {
+  const resolved = actions ?? items ?? [];
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -37,23 +40,24 @@ export default function ActionMenu({ actions }: Props) {
 
       {open && (
         <div className="absolute right-0 top-8 z-50 min-w-[160px] rounded-2xl border border-slate-200 bg-white py-1 shadow-xl">
-          {actions.map((action, i) => (
-            <button
-              key={i}
-              disabled={action.disabled}
-              onClick={() => { action.onClick(); setOpen(false); }}
-              className={clsx(
-                "flex w-full items-center gap-2.5 px-4 py-2.5 text-sm transition",
-                action.variant === "danger"
-                  ? "text-red-600 hover:bg-red-50"
-                  : "text-slate-700 hover:bg-slate-50",
-                action.disabled && "opacity-40 cursor-not-allowed"
-              )}
-            >
-              {action.icon && <span className="shrink-0">{action.icon}</span>}
-              {action.label}
-            </button>
-          ))}
+          {resolved.map((action, i) => {
+            const isDanger = action.variant === "danger" || action.danger === true;
+            return (
+              <button
+                key={i}
+                disabled={action.disabled}
+                onClick={() => { action.onClick(); setOpen(false); }}
+                className={clsx(
+                  "flex w-full items-center gap-2.5 px-4 py-2.5 text-sm transition",
+                  isDanger ? "text-red-600 hover:bg-red-50" : "text-slate-700 hover:bg-slate-50",
+                  action.disabled && "opacity-40 cursor-not-allowed"
+                )}
+              >
+                {action.icon && <span className="shrink-0">{action.icon}</span>}
+                {action.label}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

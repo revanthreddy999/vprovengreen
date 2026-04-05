@@ -19,13 +19,13 @@ type DataTableProps<T> = {
   emptyIcon?: React.ReactNode;
 };
 
-export default function DataTable<T extends Record<string, unknown>>({
+export default function DataTable<T>({
   columns, data, rowKey, sortKey = null, sortDirection = null, onSort,
   emptyMessage = "No data available", emptyIcon,
 }: DataTableProps<T>) {
   const sortIcon = (col: DataTableColumn<T>) => {
     if (!col.sortable) return null;
-    if (sortKey === col.key && sortDirection === "asc")  return <ArrowUp size={14} className="text-blue-700" />;
+    if (sortKey === col.key && sortDirection === "asc") return <ArrowUp size={14} className="text-blue-700" />;
     if (sortKey === col.key && sortDirection === "desc") return <ArrowDown size={14} className="text-blue-700" />;
     return <ArrowUpDown size={14} className="text-slate-400" />;
   };
@@ -58,10 +58,12 @@ export default function DataTable<T extends Record<string, unknown>>({
               </td></tr>
             ) : data.map((row, i) => (
               <tr key={rowKey ? rowKey(row, i) : String(i)}
-                className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/70 transition">
+                className="border-b border-slate-100 last:border-0 transition hover:bg-slate-50/60">
                 {columns.map((col) => (
-                  <td key={col.key} className="px-5 py-4 text-slate-700">
-                    {col.render ? col.render(row) : String(row[col.key] ?? "—")}
+                  <td key={col.key} className="px-5 py-4 align-middle">
+                    {col.render
+                      ? col.render(row)
+                      : String((row as Record<string, unknown>)[col.key] ?? "")}
                   </td>
                 ))}
               </tr>

@@ -13,11 +13,14 @@ import { useToast } from "../../context/ToastContext";
 import { invoicesMock } from "../../mock/invoices";
 import type { InvoiceItem } from "../../types/invoice";
 import { Download, Eye, Send, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { buildPath } from "../../routes/paths";
 
 const PAGE_SIZE = 5;
 
 export default function Invoices() {
   const toast = useToast();
+  const navigate = useNavigate();
   const [data, setData] = useState<InvoiceItem[]>(invoicesMock);
   const [search, setSearch] = useState("");
   const [statusF, setStatusF] = useState<string | null>(null);
@@ -70,7 +73,7 @@ export default function Invoices() {
     { key: "status", header: "Status", sortable: true, render: r => <StatusChip label={r.status} type={sType(r.status) as "success" | "warning" | "error"} /> },
     { key: "actions", header: "", render: r => (
       <ActionMenu actions={[
-        { label: "View Invoice", icon: <Eye size={14} />, onClick: () => setViewTarget(r) },
+        { label: "View Invoice", icon: <Eye size={14} />, onClick: () => navigate(buildPath.invoiceDetail(r.id)) },
         { label: "Download PDF", icon: <Download size={14} />, onClick: () => toast(`Downloading ${r.invoiceNo}…`, "info") },
         { label: "Send Reminder", icon: <Send size={14} />, onClick: () => toast(`Reminder sent for ${r.invoiceNo}`), disabled: r.status === "Paid" },
         { label: "Mark as Paid", icon: <Eye size={14} />, onClick: () => markPaid(r), disabled: r.status === "Paid" },
